@@ -1,0 +1,356 @@
+﻿﻿
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="../lib/html5shiv.js"></script>
+    <script type="text/javascript" src="../lib/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="../static/h-ui/css/H-ui.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/H-ui.admin.css"/>
+    <link rel="stylesheet" type="text/css" href="../lib/Hui-iconfont/1.0.8/iconfont.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/h-ui.admin/skin/default/skin.css" id="skin"/>
+    <link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/style.css"/>
+
+    <!--整合的分页插件-->
+    <link rel="stylesheet" type="text/css" href="../lib/page/page.css"/>
+
+    <!--[if IE 6]>
+    <script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js"></script>
+    <script>DD_belatedPNG.fix('*');</script>
+    <![endif]-->
+
+    <title>我的客户需求列表</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span>订单管理<span
+        class="c-gray en">&gt;</span>我的客户需求列表 <a class="btn btn-success radius r"
+                                                 style="line-height:1.6em;margin-top:3px"
+                                                 href="javascript:location.replace(location.href);" title="刷新"><i
+        class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+    <!--<div class="text-c">-->
+    <!--发布时间范围：-->
+    <!--<input type="text" onfocus="WdatePicker({ dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate:'#F{$dp.$D(\'searchEndTime\')||\'%y-%M-%d\'}' })" id="searchStartTime" class="input-text Wdate" style="width:180px;">-->
+    <!-- - -->
+    <!--<input type="text" onfocus="WdatePicker({ dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'searchStartTime\')}',maxDate:'%y-%M-%d' })" id="searchEndTime" class="input-text Wdate" style="width:180px;">-->
+    <!--<span class="select-box inline">-->
+    <!--<select name="" class="select" id="searchField">-->
+    <!--<option value="activity_content" selected>内容</option>-->
+    <!--<option value="activity_title">标题</option>-->
+    <!--<option value="pusher">发布人</option>-->
+    <!--</select>-->
+    <!--</span>-->
+    <!--<input type="text" id="searchValue" placeholder=" 请输入要搜索的内容" style="width:250px" class="input-text">-->
+    <!--<button class="btn btn-success" type="button" onclick="searchInformation()"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>-->
+    <!--</div>-->
+    <div class="cl pd-5 bg-1 bk-gray mt-20">
+		<span class="l" style="width: 100%;">
+			<a href="javascript:;" onclick="openLayer('demand-add.html')" class="btn btn-primary radius"
+               style="float:right;"><i class="Hui-iconfont">&#xe600;</i> 新增客户需求</a>
+
+		</span>
+    </div>
+    <div class="mt-20">
+        <div class="pageSizeSelect_wrap">
+            <label>每页显示
+                <select class="pageSizeSelect" onchange="pageSizeChange(this.value)">
+                    <option value="1">1</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>条
+            </label>
+            <!--<label style="float: right;">是否发布：-->
+            <!--<select class="pageSizeSelect" onchange="setIsPublish(this.value)">-->
+            <!--<option value="">无限制</option>-->
+            <!--<option value="1">只显示已发布</option>-->
+            <!--<option value="0">只显示未发布</option>-->
+            <!--</select>-->
+            <!--</label>-->
+        </div>
+        <table class="table table-border table-bordered table-bg table-hover">
+            <thead>
+            <tr class="text-c">
+                <th width="25"><input type="checkbox" onchange='setIds()'></th>
+                <th width="80">编号</th>
+                <th width="80">需求标题</th>
+                <th width="80">需求详情</th>
+                <th width="80">审核结果</th>
+                <th width="60">审核时间</th>
+                <th width="60">创建时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="infoList">
+
+            </tbody>
+        </table>
+        <div id="page_btn" style="float:right;margin: 10px 0px;"></div>
+    </div>
+</div>
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="../static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="../static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="../lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<script type="text/javascript" src="../lib/page/page.js"></script>
+<script type="text/javascript">
+    var nowPage = 1;
+    var pageSize = 10;
+    var adminId = "";
+    var searchField = "";
+    var searchValue = "";
+    var searchStartTime = "";
+    var searchEndTime = "";
+    $(document).ready(function () {
+        /*
+         * 获取URL参数开始,listPartTable.html?tableName=name
+         */
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            var strs = str.split("&");
+            for (var i = 0; i < strs.length; i++) {
+                theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
+            }
+        }
+        adminId = $.cookie("website-adminId");
+        searchField = "pub_admin_id";
+        searchValue = adminId;
+        //classid = theRequest['classid'];
+        /*
+         * 获取URL参数结束
+         */
+        getInfoList();
+    });
+
+    /**
+     * 获得信息的列表
+     */
+    function getInfoList() {
+        ids = "";
+        $.ajax({
+            url: './queryDemandList',
+            type: 'POST',
+            dataType: 'json',
+            //async: false, //异步：关闭
+            data: {
+                'nowPage': nowPage, 'pageSize': pageSize,
+                'searchField': searchField, 'searchValue': searchValue,
+                'searchStartTime': searchStartTime, 'searchEndTime': searchEndTime
+            },
+            success: function (res) {
+                var html = "";
+                if (res.code != 200) {
+                    html += "<tr ><td colspan='20' style='text-align:center;'>" + res.msg + "</td></tr>";
+                    layer.msg(res.msg);
+
+                } else if (res.data.total == 0) {
+                    html += "<tr ><td colspan='20' style='text-align:center;'>没有相关信息</td></tr>";
+
+                } else {
+                    var req = res.data.list;
+                    $.each(req, function (n, info) {
+
+                        demandContent = "<a onclick='openContent(\"" + info.demandId + "\")' href='javascript:;'><span style='color: green'><i class='Hui-iconfont'>&#xe695;</i> 点击查看</span></a>";
+
+                        var confirmRes = "";
+                        if (info.isConfirm == '0') {
+                            confirmRes = "未审核";
+                        } else if (info.isConfirm == '1') {
+                            confirmRes = "审核通过";
+
+                        } else if (info.isConfirm == '2') {
+                            confirmRes = "审核未通过";
+
+                        }
+
+                        //动态生成信息列表
+                        html +=
+                            "<tr class='text-c'>" +
+                            "<td><input type='checkbox' value='" + info.demandId + "' name='cb-id' onchange='setIds()'></td>" +
+                            "<td>" + info.demandId + "</td>" +
+                            "<td>" + info.demandTitle + "</td>" +
+                            "<td>" + demandContent + "</td>" +
+                            "<td>" + confirmRes + "</td>" +
+                            "<td>" + fomatTimestamp2Str(info.confirmTime) + "</td>" +
+                            "<td>" + fomatTimestamp2Str(info.createTime) + "</td>" +
+                            "<td >" + "<a title='修改' onclick='openLayer(\"demand-add.html?id=" + info.demandId + "\")' class='ml-10' style='text-decoration:none;color:green;font-size: 15px;' href='javascript:;'><i class='Hui-iconfont'>&#xe6df;</i></a>"
+//                                + "<a title='删除' onclick='datadel(\"" + info.demandId + "\")' class='ml-10' style='text-decoration:none;color:red;font-size: 15px;' href='javascript:;'><i class='Hui-iconfont'>&#xe609;</i></a>"
+                        "</td>" +
+                        "</tr>";
+                    });
+                }
+
+                //*****设置页码*****
+                var ss = page(res.data, "list");
+                $("#page_btn").empty();
+                $('#page_btn').append(ss);
+                //*****设置页码*****
+                $("#infoList").html(html);
+            }, error: function () {
+                layer.msg("网络异常！");
+            }
+        });
+    }
+
+    //翻页方法
+    function list(now) {
+        nowPage = now;
+        getInfoList();
+    }
+
+    /**
+     * 搜索信息方法
+     */
+//搜索的参数，全局变量
+
+    function searchInformation() {
+        nowPage = 1;
+        searchField = $("#searchField").val();
+        searchValue = $("#searchValue").val();
+        searchStartTime = $("#searchStartTime").val();
+        searchEndTime = $("#searchEndTime").val();
+
+        getInfoList();
+    }
+
+    /*
+     * 设置每页显示多少条数据
+     */
+    function pageSizeChange(newSize) {
+        pageSize = newSize;
+        getInfoList();
+    }
+
+    /**
+     * 设置显示消息类型
+     */
+    function setIsPublish(value) {
+        isPublish = value;
+        getInfoList();
+    }
+
+    function fomatTimestamp2Str(timestamp) {
+        if (timestamp == null || timestamp == "") {
+            return "无";
+        }
+        var t, y, m, d, h, i, s;
+        t = new Date(timestamp);
+        y = t.getFullYear();
+        m = t.getMonth() + 1;
+        d = t.getDate();
+        h = t.getHours();
+        i = t.getMinutes();
+        s = t.getSeconds();
+        //可根据需要在这里定义时间格式
+        return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d) + ' ' + (h < 10 ? '0' + h : h) + ':' + (i < 10 ? '0' + i : i) + ':' + (s < 10 ? '0' + s : s);
+    }
+
+    /**
+     * 设置批量ids
+     */
+    var ids = "";
+
+    function setIds() {
+        ids = "";
+        $("input[name='cb-id']:checked").each(function (n, thisobj) {
+            if (ids == "") {
+                ids += thisobj.value;
+            } else {
+                ids += "," + thisobj.value;
+            }
+        });
+    }
+
+    /**
+     * 删除信息方法
+     */
+    function datadel(id) {
+        var thisIds = ids;
+        if (id != null && id != "") {
+            thisIds = id;
+        }
+        if (thisIds == null || thisIds == "") {
+            layer.msg("没有选中任何信息");
+            return null;
+        }
+        layer.confirm(
+            '确定删除该信息吗?',
+            {btn: ['确定', '取消']}, //按钮
+            function () {
+                $.ajax({
+                    url: 'deleteAdmin',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {'activityIds': thisIds},
+                    success: function (res) {
+                        if (res.code != 200) {
+                            layer.msg(res.msg, {icon: 2});
+                        } else {
+                            //刷新页面
+                            layer.msg('删除成功', {icon: 1});
+                            getInfoList();
+                        }
+                    }, error: function () {
+                        layer.msg("网络异常！");
+                    }
+                });
+            },
+            function () {
+                //layer.msg('什么也没做');
+            });
+    }
+
+
+    /*查看详情*/
+    function openLayer(url) {
+        layer.open({
+            type: 2,
+            //title: title,
+            title: false, //不显示标题
+            content: url,
+            //content: '暂无',
+            area: [document.body.clientWidth * 0.9 + 'px', document.body.clientHeight * 0.9 + 'px']
+        });
+    }
+    /*查看活动详情*/
+    function openContent(thisid) {
+        $.ajax({
+            url: './queryDemand',
+            type: 'POST',
+            dataType: 'json',
+            //async: false, //异步：关闭
+            data: {'demandId': thisid},
+            success: function (res) {
+                if (res.code != 200) {
+                    layer.msg(res.msg, {icon: 2});
+                } else {
+                    var info = res.data;
+                    layer.open({
+                        type: 1,
+                        title: false,
+                        content: info.demandContent,
+                        area: [document.body.clientWidth * 0.9 + 'px', document.body.clientHeight * 0.9 + 'px']
+                    });
+                }
+            }, error: function () {
+                layer.msg("网络异常！");
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

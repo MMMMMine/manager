@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.frank.manager.server.mapper.AdminInfoMapper" >
+  <resultMap id="BaseResultMap" type="me.frank.manager.server.mapper.bo.AdminInfo" >
+    <!--
+      WARNING - @mbggenerated
+    -->
+    <id column="admin_id" property="adminId" jdbcType="INTEGER" />
+    <result column="role_id" property="roleId" jdbcType="INTEGER" />
+    <result column="account" property="account" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="token" property="token" jdbcType="VARCHAR" />
+    <result column="login_count" property="loginCount" jdbcType="INTEGER" />
+    <result column="login_last_ip" property="loginLastIp" jdbcType="VARCHAR" />
+    <result column="login_last_time" property="loginLastTime" jdbcType="TIMESTAMP" />
+    <result column="login_curr_ip" property="loginCurrIp" jdbcType="VARCHAR" />
+    <result column="login_curr_time" property="loginCurrTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+    <select id="selectAdminInfoByAccount" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        *
+        from admin_info
+        where account = #{account}
+    </select>
+
+    <select id="selectAdminInfoByIdAndAccount" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        *
+        from admin_info
+        <where>
+            <trim prefix="" suffix="" suffixOverrides="and">
+                <if test="adminId != null">
+                    admin_id = #{adminId} and
+                </if>
+                <if test="account != null">
+                    account = #{account} and
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="selectAdminList" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        *
+        from admin_info
+        <where>
+            <trim prefix="" suffix="" suffixOverrides="and">
+                <if test="searchField != null and searchField != '' and searchValue != null and searchValue != ''">
+                    ${searchField} like '%${searchValue}%' and
+                </if>
+                <if test="searchStartTime != null and searchStartTime != ''">
+                    UNIX_TIMESTAMP(create_time) &gt; ${searchStartTime} and
+                </if>
+                <if test="searchEndTime != null and searchEndTime != ''">
+                    UNIX_TIMESTAMP(create_time) &lt; ${searchEndTime} and
+                </if>
+            </trim>
+
+        </where>
+        order by create_time desc
+    </select>
+
+</mapper>

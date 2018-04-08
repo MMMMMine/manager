@@ -1,0 +1,251 @@
+﻿<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<meta http-equiv="Cache-Control" content="no-siteapp" />
+	<!--[if lt IE 9]>
+	<script type="text/javascript" src="../lib/html5shiv.js"></script>
+	<script type="text/javascript" src="../lib/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="../static/h-ui/css/H-ui.min.css" />
+	<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/H-ui.admin.css" />
+	<link rel="stylesheet" type="text/css" href="../lib/Hui-iconfont/1.0.8/iconfont.css" />
+	<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/skin/default/skin.css" id="skin" />
+	<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/style.css" />
+
+	<!--整合的分页插件-->
+	<link rel="stylesheet" type="text/css" href="../lib/page/page.css" />
+
+	<!--[if IE 6]>
+	<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js"></script>
+	<script>DD_belatedPNG.fix('*');</script>
+	<![endif]-->
+
+	<title>新闻</title>
+</head>
+<body>
+<div class="page-container">
+	<div class="cl pd-5">
+		<div style="width: 100%;border-bottom: solid 3px #eee;padding-bottom: 5px;">
+			<span id="page-name">新建新闻</span>
+		</div>
+	</div>
+	<form id="form" class="form form-horizontal">
+		<div class="row cl">
+			<label class="form-label col-sm-2">消息id：</label>
+			<div class="col-sm-9">
+				<span style="line-height: 25px;" id="noticeId"></span>
+				<span style="color: grey;line-height: 25px;">（自动生成）</span>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-sm-2">消息内容：</label>
+			<div class="col-sm-9">
+				<textarea id="messageInfo" class="textarea"  placeholder="说点什么..." maxlength="200" onKeyUp="textareaContentLength(this)"></textarea>
+				<p class="textarea-numberbar"><span>0/200</span></p>
+			</div>
+		</div>
+
+		<div class="mt-15" style="width: 100%;border-bottom:solid 2px #eee"></div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2">活动id：</label>
+			<div class="col-sm-9">
+				<span style="line-height: 25px;" id="newsId"></span>
+				<span style="color: grey;line-height: 25px;">（自动生成）</span>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2">活动标题：</label>
+			<div class="col-sm-9">
+				<input type="text" class="input-text" value="" id="title" name="title" maxlength="20">
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2">发布人：</label>
+			<div class="col-sm-9">
+				<input type="text" class="input-text" value="" id="author" name="author" maxlength="10">
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2">活动内容：</label>
+			<div class=" col-sm-9">
+				<div id="editor" type="text/plain" style="width:100%;height:400px;"></div>
+            </div>
+        </div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2"></label>
+			<div class="col-sm-9">
+				<button onClick="submitBtn();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 提交</button>
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="../static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="../static/h-ui.admin/js/H-ui.admin.js"></script>
+<!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="../lib/page/page.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script>
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script>
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script>
+
+<script type="text/javascript">
+    /*初始化UE*/
+    var ue;
+	$(function(){
+        ue = UE.getEditor('editor');
+        ue.ready(function() {
+            if(id != null && id != ""){
+                getInfo();
+            }
+            //设置编辑器的内容
+            //ue.setContent('hello');
+            //获取html内容，返回: <p>hello</p>
+            //var html = ue.getContent();
+            //获取纯文本内容，返回: hello
+            //var txt = ue.getContentTxt();
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    var id="";
+    $(document).ready(function () {
+        /*
+         * 获取URL参数开始,listPartTable.html?tableName=name
+         */
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            var strs = str.split("&");
+            for (var i = 0; i < strs.length; i++) {
+                theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
+            }
+        }
+        id = theRequest['id'];
+        /*
+         * 获取URL参数结束
+         */
+        /*if(id != null && id != ""){
+            getInfo();
+        }*/
+    });
+
+    /**
+     * 获得信息的详情
+     */
+    function getInfo() {
+        $.ajax({
+            url:'queryNotice',
+            type: 'POST',
+            dataType: 'json',
+            //async: false, //异步：关闭
+            data: {'noticeId': id},
+            success: function (res) {
+                if (res.code != 200) {
+                    layer.msg(res.msg, {icon: 2});
+                } else {
+                    var info = res.data;
+                    $("#page-name").html("查看/修改消息活动");
+
+                    $("#noticeId").html(info.id);
+                    $("#messageInfo").val(info.message_info);
+
+                    $("#newsId").html(info.news_id);
+                    $("#title").val(info.title);
+                    $("#author").val(info.author);
+                    ue.setContent(info.content);
+
+                }
+            },error: function () {
+                layer.msg("网络异常！");
+            }
+        });
+    }
+
+    /**
+     * 提交
+     */
+    function submitBtn() {
+        id = $("#noticeId").html();
+        var newsId = $("#newsId").html();
+
+        var messageInfo = $("#messageInfo").val();
+        if(messageInfo == null || messageInfo == ""){
+            layer.msg("请输入消息内容");
+            return ;
+        }
+
+        var title = $("#title").val();
+        if(title == null || title == ""){
+            layer.msg("请输入活动标题");
+            return ;
+        }
+
+        var author = $("#author").val();
+        if(author == null || author == ""){
+            layer.msg("请输入发布人");
+            return ;
+        }
+
+        var content = ue.getContent();
+        if(content == null || content == ""){
+            layer.msg("请输入活动内容");
+            return ;
+        }
+
+        $.ajax({
+            url: 'adupNoticeNews.do',
+            type: 'POST',
+            dataType: 'json',
+            //data: $("#form").serialize(),
+            data: {'id':id,
+                'pusher':'镖镖助手',
+                'messageInfo':messageInfo,
+                'messageType':'0',
+				'newsId':newsId,'title':title,'author':author,'content':content},
+            success: function (res) {
+                if(res.code == 200){
+                    layer.confirm(res.msg,{btn: ['确定']},
+                        function(){
+                            layer_close();
+                        });
+                }else{
+                    layer.msg(res.msg, {icon: 2});
+                }
+            },
+            error: function () {
+                layer.msg("网络异常！");
+            }
+        });
+    }
+
+    function textareaContentLength(obj){
+        var max = $(obj).attr("maxLength");
+        var length = $(obj).val().length;
+        if( length == max){
+            $(obj).siblings(".textarea-numberbar").children("span").css("color","red").html(length+"/"+max);
+        }else{
+            $(obj).siblings(".textarea-numberbar").children("span").css("color","black").html(length+"/"+max);
+        }
+    }
+</script>
+
+</body>
+</html>

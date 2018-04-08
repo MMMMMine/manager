@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.frank.manager.server.mapper.DemandInfoMapper">
+    <resultMap id="BaseResultMap" type="me.frank.manager.server.mapper.bo.DemandInfo">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="demand_id" property="demandId" jdbcType="INTEGER"/>
+        <result column="demand_title" property="demandTitle" jdbcType="VARCHAR"/>
+        <result column="pub_admin_id" property="pubAdminId" jdbcType="INTEGER"/>
+        <result column="is_confirm" property="isConfirm" jdbcType="INTEGER"/>
+        <result column="confirm_admin_id" property="confirmAdminId" jdbcType="INTEGER"/>
+        <result column="charge_is_confirm" property="chargeIsConfirm" jdbcType="INTEGER"/>
+        <result column="charge_admin_id" property="chargeAdminId" jdbcType="INTEGER"/>
+        <result column="charge_confirm_admin_id" property="chargeConfirmAdminId" jdbcType="INTEGER"/>
+        <result column="has_plan" property="hasPlan" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="confirm_time" property="confirmTime" jdbcType="TIMESTAMP"/>
+        <result column="demand_content" property="demandContent" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <select id="selectDemandList" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        *
+        from demand_info
+        <where>
+            <trim prefix="" suffix="" suffixOverrides="and">
+                <if test="searchField != null and searchField != '' and searchValue != null and searchValue != ''">
+                    ${searchField} like '%${searchValue}%' and
+                </if>
+                <if test="searchStartTime != null and searchStartTime != ''">
+                    UNIX_TIMESTAMP(create_time) &gt; ${searchStartTime} and
+                </if>
+                <if test="searchEndTime != null and searchEndTime != ''">
+                    UNIX_TIMESTAMP(create_time) &lt; ${searchEndTime} and
+                </if>
+            </trim>
+
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectConfirmDemandList" resultType="me.frank.manager.controller.vo.order.QueryConfirmDemandInfoVo"
+            parameterType="java.lang.String">
+        select
+        a.demand_id as demandId,
+        a.demand_title as demandTitle,
+        a.pub_admin_id as pubAdminId,
+        a.is_confirm as isConfirm,
+        a.create_time as createTime,
+        a.confirm_time as confirmTime,
+        b.name as pubAdminName,
+        b.phone as pubAdminPhone,
+        b.email as pubAdminEmail
+        from demand_info a left join admin_info b on a.pub_admin_id = b.admin_id
+        <where>
+            <trim prefix="" suffix="" suffixOverrides="and">
+                <if test="searchField != null and searchField != '' and searchValue != null and searchValue != ''">
+                    a.${searchField} like '%${searchValue}%' and
+                </if>
+                <if test="searchStartTime != null and searchStartTime != ''">
+                    UNIX_TIMESTAMP(a.create_time) &gt; ${searchStartTime} and
+                </if>
+                <if test="searchEndTime != null and searchEndTime != ''">
+                    UNIX_TIMESTAMP(a.create_time) &lt; ${searchEndTime} and
+                </if>
+            </trim>
+
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectChargeDemandList" resultType="me.frank.manager.controller.vo.order.QueryChargeDemandVo">
+
+        select
+        a.demand_id as demandId,
+        a.demand_title as demandTitle,
+        a.has_plan as hasPlan,
+        a.create_time as createTime,
+        a.confirm_time as confirmTime,
+        b.name as confirmAdminName,
+        b.phone as confirmAdminPhone
+        from demand_info a left join admin_info b on a.confirm_admin_id = b.admin_id
+        <where>
+            a.charge_admin_id = #{chargeAdminId}
+            <trim prefix="" suffix="" suffixOverrides="and">
+                <if test="searchField != null and searchField != '' and searchValue != null and searchValue != ''">
+                    a.${searchField} like '%${searchValue}%' and
+                </if>
+                <if test="searchStartTime != null and searchStartTime != ''">
+                    UNIX_TIMESTAMP(a.create_time) &gt; ${searchStartTime} and
+                </if>
+                <if test="searchEndTime != null and searchEndTime != ''">
+                    UNIX_TIMESTAMP(a.create_time) &lt; ${searchEndTime} and
+                </if>
+            </trim>
+
+        </where>
+        order by a.create_time desc
+
+    </select>
+
+</mapper>

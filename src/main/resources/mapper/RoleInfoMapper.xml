@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.frank.manager.server.mapper.RoleInfoMapper">
+    <resultMap id="BaseResultMap" type="me.frank.manager.server.mapper.bo.RoleInfo">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="role_id" property="roleId" jdbcType="INTEGER"/>
+        <result column="role_name" property="roleName" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="role_auth" property="roleAuth" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <select id="selectRoleList" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        *
+        from role_info
+        <where>
+            <trim prefix="" suffix="" suffixOverrides="and">
+                <if test="searchField != null and searchField != '' and searchValue != null and searchValue != ''">
+                    ${searchField} like '%${searchValue}%' and
+                </if>
+                <if test="searchStartTime != null and searchStartTime != ''">
+                    UNIX_TIMESTAMP(create_time) &gt; ${searchStartTime} and
+                </if>
+                <if test="searchEndTime != null and searchEndTime != ''">
+                    UNIX_TIMESTAMP(create_time) &lt; ${searchEndTime} and
+                </if>
+            </trim>
+
+        </where>
+        order by create_time desc
+    </select>
+
+</mapper>

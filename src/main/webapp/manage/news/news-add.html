@@ -1,0 +1,321 @@
+﻿<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<meta http-equiv="Cache-Control" content="no-siteapp" />
+	<!--[if lt IE 9]>
+	<script type="text/javascript" src="../lib/html5shiv.js"></script>
+	<script type="text/javascript" src="../lib/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="../static/h-ui/css/H-ui.min.css" />
+	<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/H-ui.admin.css" />
+	<link rel="stylesheet" type="text/css" href="../lib/Hui-iconfont/1.0.8/iconfont.css" />
+	<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/skin/default/skin.css" id="skin" />
+	<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/style.css" />
+
+	<!--整合的分页插件-->
+	<link rel="stylesheet" type="text/css" href="../lib/page/page.css" />
+
+	<!--[if IE 6]>
+	<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js"></script>
+	<script>DD_belatedPNG.fix('*');</script>
+	<![endif]-->
+
+	<title>新闻</title>
+</head>
+<body>
+<div class="page-container">
+	<div class="cl pd-5">
+		<div style="width: 100%;border-bottom: solid 3px #eee;padding-bottom: 5px;">
+			<span id="page-name">新建新闻</span>
+		</div>
+	</div>
+	<form id="form" class="form form-horizontal">
+		<div class="row cl">
+			<label class="form-label col-sm-2">新闻id：</label>
+			<div class="col-sm-9">
+				<span style="line-height: 25px;" id="id"></span>
+				<span style="color: grey;line-height: 25px;">（自动生成）</span>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-sm-2">新闻标题：</label>
+			<div class="col-sm-9">
+				<input type="text" class="input-text" value="" id="newsTitle" name="newsTitle" maxlength="50">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-sm-2">作者：</label>
+			<div class="col-sm-9">
+				<input type="text" class="input-text" value="" id="newsAuthor" name="newsAuthor" maxlength="10">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-sm-2">发布人：</label>
+			<div class="col-sm-9">
+				<span style="line-height: 25px;" id="pusher"></span>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-sm-2">新闻图：</label>
+			<div class="col-sm-9">
+				<input type="file" id="file" name="file" class="btn btn-default radius ml-10" accept=".jpg,.png" />
+				<button type="button" class="btn btn-default radius ml-10" onclick="upPic()">开始上传</button>
+				<div class="mt-10" style="width: 100%;height: 300px;overflow: hidden;"><img height="100%" id="pic-show" src="../pic/news-pic-default.png"/></div>
+				<input type="text" id="picUrl" name="picUrl" class="input-text" value="" placeholder="上传图片后自动获得">
+			</div>
+		</div>
+
+		<!--这是一条分割线-->
+		<div class="mt-15" style="width: 100%;border-bottom:solid 2px #eee"></div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2">新闻内容：</label>
+			<div class=" col-sm-9">
+				<div id="editor" type="text/plain" style="width:100%;height:400px;"></div>
+            </div>
+        </div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2">是否上架：</label>
+			<div class="col-sm-9">
+				<input type="radio" id="isPublish-0" name="isPublish" value="0" checked>
+				<label for="isPublish-0">未上架</label>
+				<input type="radio" id="isPublish-1" name="isPublish" value="1">
+				<label for="isPublish-1">已上架</label>
+				<span style="color: grey;line-height: 25px;">（首页只显示已上架）</span>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-sm-2"></label>
+			<div class="col-sm-9">
+				<button onClick="submitBtn();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 提交</button>
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="../static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="../static/h-ui.admin/js/H-ui.admin.js"></script>
+<!--/_footer 作为公共模版分离出去-->
+
+<!--ajaxfileupload插件-->
+<script src="../lib/ajaxfileupload.js" type="text/javascript"></script>
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="../lib/page/page.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script>
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script>
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script>
+
+<script type="text/javascript">
+    /*初始化UE*/
+    var ue;
+	$(function(){
+        ue = UE.getEditor('editor');
+        ue.ready(function() {
+            if(id != null && id != ""){
+                getInfo();
+            }
+            //设置编辑器的内容
+            //ue.setContent('hello');
+            //获取html内容，返回: <p>hello</p>
+            //var html = ue.getContent();
+            //获取纯文本内容，返回: hello
+            //var txt = ue.getContentTxt();
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    var id="";
+    var account = $.cookie("website-account");
+    $(document).ready(function () {
+        /*
+         * 获取URL参数开始,listPartTable.html?tableName=name
+         */
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            var strs = str.split("&");
+            for (var i = 0; i < strs.length; i++) {
+                theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
+            }
+        }
+        id = theRequest['id'];
+        /*
+         * 获取URL参数结束
+         */
+        getSystemParam();
+        $("#pusher").html(account);
+        /*if(id != null && id != ""){
+            getInfo();
+        }*/
+    });
+
+    var imgRootPath = "";
+    function getSystemParam() {
+        $.ajax({
+            url:'../system/getSystemPara',
+            type: 'POST',
+            async :false,
+            dataType: 'json',
+            success: function (res) {
+                if (res.code != 200) {
+                    layer.msg(res.msg, {icon: 2});
+                } else {
+                    var info = res.data;
+                    imgRootPath = info.imgRootPath;
+                }
+            },error: function () {
+                layer.msg("获取系统参数网络异常！");
+            }
+        });
+    }
+
+    /**
+     * 获得信息的详情
+     */
+    function getInfo() {
+        $.ajax({
+            url:'queryNews',
+            type: 'POST',
+            dataType: 'json',
+            //async: false, //异步：关闭
+            data: {'newsId': id},
+            success: function (res) {
+                if (res.code != 200) {
+                    layer.msg(res.msg, {icon: 2});
+                } else {
+                    var info = res.data;
+                    $("#page-name").html("查看/修改新闻");
+
+                    $("#id").html(info.id);
+                    $("#newsTitle").val(info.newsTitle);
+                    $("#newsAuthor").val(info.newsAuthor);
+                    $("#pusher").html(info.pusher);
+
+                    $("#picUrl").val(info.newsPicUrl);
+                    $("#pic-show").attr("src",imgRootPath + info.newsPicUrl);
+
+                    ue.setContent(info.newsContent);
+
+                    if(info.isPublish == "1"){
+                        $("#isPublish-1").attr("checked",true);
+                    }else if(info.isPublish == "0"){
+                        $("#isPublish-0").attr("checked",true);
+                    }
+
+                }
+            },error: function () {
+                layer.msg("网络异常！");
+            }
+        });
+    }
+
+    function upPic() {
+        if($("#file").val() == null || $("#file").val() == ""){
+            layer.msg("请先选择图片");
+            return false;
+        }
+        $.ajaxFileUpload({
+            type: 'post',
+            url:'../system/uploadFile',
+            dataType:'json',
+            fileElementId:['file'],
+            secureuri:false,
+            success: function (res) {
+                if (res.code != 200) {
+                    layer.msg(res.msg, {icon: 2});
+                } else {
+                    var path = res.data;
+                    $("#picUrl").val(path);
+                    $("#pic-show").attr("src",imgRootPath + path);
+                }
+            },error: function () {
+                layer.msg("上传图片网络异常！");
+            }
+        });
+    }
+
+    /**
+     * 提交
+     */
+    function submitBtn() {
+        id = $("#id").html();
+
+        var newsTitle = $("#newsTitle").val();
+        if(newsTitle == null || newsTitle == ""){
+            layer.msg("请输入新闻标题");
+            return ;
+        }
+
+        var newsAuthor = $("#newsAuthor").val();
+        if(newsAuthor == null || newsAuthor == ""){
+            layer.msg("请输入作者");
+            return ;
+        }
+
+        var pusher = $("#pusher").html();
+
+        var picUrl = $("#picUrl").val();
+        if(picUrl == null || picUrl == ""){
+            layer.msg("请务必上传图片");
+            return ;
+        }
+
+        var newsContent = ue.getContent();
+        if(newsContent == null || newsContent == ""){
+            layer.msg("请输入新闻内容");
+            return ;
+        }
+
+        var newsPreview = "";
+        newsPreview = ue.getContentTxt().substring(0,28)+"...";
+
+        var isPublish = $('input[name="isPublish"]:checked').val();
+
+        $.ajax({
+            url: 'adupNews.do',
+            type: 'POST',
+            dataType: 'json',
+            //data: $("#form").serialize(),
+            data: {'id':id,
+                'newsTitle':newsTitle,
+                'newsAuthor':newsAuthor,
+                'pusher':pusher,
+                'newsPreview':newsPreview,
+                'newsPicUrl':picUrl,
+                'isPublish':isPublish,
+				'newsContent':newsContent},
+            success: function (res) {
+                if(res.code == 200){
+                    layer.confirm(res.msg,{btn: ['确定']},
+                        function(){
+                            window.parent.getInfoList();//调用父窗口的方法刷新列表
+                            layer_close();
+                        });
+                }else{
+                    layer.msg(res.msg, {icon: 2});
+                }
+            },
+            error: function () {
+                layer.msg("网络异常！");
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>
